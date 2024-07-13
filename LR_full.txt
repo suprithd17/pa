@@ -1,0 +1,307 @@
+Linear reg
+
+df_lr['horsepower'].unique()
+
+df_lr['horsepower']=df_lr["horsepower"].replace("?",np.NaN)
+df_lr['horsepower'].unique()
+
+df_lr['horsepower']=df_lr['horsepower'].astype(float)
+df_lr.info()
+
+df_lr.isnull().sum()
+
+df_lr.horsepower=df_lr.horsepower.fillna(df_lr.horsepower.mean())
+df_lr.isnull().sum()
+
+plt.figure(figsize=(9,9))
+count = df.dtypes.index
+sns.violinplot(data=df.iloc[:11],orient = "h",palette = ["teal"])
+plt.title("With Outlier",fontsize=20,fontfamily="Cursive")
+plt.show()
+
+# outlier removal #
+def remove_outlier(col):
+    sorted(col)
+    Q1,Q3=np.percentile(col,[25,75])
+    IQR=Q3-Q1
+    lower_range = Q1 - (1.5*IQR)      
+    upper_range = Q3 + (1.5 *IQR)
+    return lower_range,upper_range
+
+for column in df[count].columns:
+    LL, UL = remove_outlier(df[column])
+    df[column]=np.where(df[column]>UL,UL,df[column])
+    df[column]=np.where(df[column]<LL,LL,df[column])
+
+count = df.dtypes.index
+plt.figure(figsize=(10,10))
+df[count].boxplot(vert=0,showmeans=True)
+plt.title("Without Outliers",fontsize=20,fontfamily="Cursive")
+plt.show()
+
+df_lr.groupby(['origin']).count()
+
+print(df_lr['origin'].unique())
+df_lr['origin'] = df_lr.origin.map({1: 'American', 2: 'European', 3: 'Asian'})
+print(df_lr['origin'].unique())
+
+df_lr=pd.get_dummies(df_lr,columns=['origin'],drop_first=True)
+
+df_lr.head()
+
+X=df_lr.drop(["mpg"],axis=1)
+y=df_lr["mpg"]
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.30,random_state = 1)
+
+import statsmodels.api as sm
+
+X_train=sm.add_constant(X_train) 
+X_test=sm.add_constant(X_test)
+
+model = sm.OLS(y_train,X_train).fit() 
+print(model.summary())
+
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+vif_series1 = pd.Series([variance_inflation_factor(X_train.values,i)
+                        for i in range(X_train.shape[1])],index=X_train.columns,)
+print("VIF values: \n\n{}\n".format(vif_series1))
+
+X_train.columns
+
+X_train2= X_train.drop(['displacement'],axis=1)
+olsmod_1 = sm.OLS(y_train,X_train2)
+olsres_1=olsmod_1.fit()
+
+print("R-Squared:",np.round(olsres_1.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_1.rsquared_adj,3))
+
+
+X_train3= X_train.drop(['weight'],axis=1)
+olsmod_2 = sm.OLS(y_train,X_train3)
+olsres_2=olsmod_1.fit()
+
+print("R-Squared:",np.round(olsres_2.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_2.rsquared_adj,3))
+
+X_train4= X_train.drop(['cylinders'],axis=1)
+olsmod_3 = sm.OLS(y_train,X_train4)
+olsres_3=olsmod_3.fit()
+
+print("R-Squared:",np.round(olsres_3.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_3.rsquared_adj,3))
+
+X_train5= X_train.drop(['horsepower'],axis=1)
+olsmod_4 = sm.OLS(y_train,X_train5)
+olsres_4=olsmod_4.fit()
+
+print("R-Squared:",np.round(olsres_4.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_4.rsquared_adj,3))
+
+X_train6= X_train.drop(['cylinders'],axis=1)
+olsmod_5 = sm.OLS(y_train,X_train6)
+olsres_5=olsmod_5.fit()
+print(olsres_5.summary())
+
+
+vif_series1 = pd.Series([variance_inflation_factor(X_train6.values,i)
+                        for i in range(X_train6.shape[1])],index=X_train6.columns,)
+print("VIF values: \n\n{}\n".format(vif_series1))
+
+
+X_train2_1= X_train6.drop(['displacement'],axis=1)
+olsmod_1_1 = sm.OLS(y_train,X_train2_1)
+olsres_1_1=olsmod_1_1.fit()
+
+print("R-Squared:",np.round(olsres_1_1.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_1_1.rsquared_adj,3))
+
+
+X_train3_1= X_train6.drop(['weight'],axis=1)
+olsmod_2_1 = sm.OLS(y_train,X_train3_1)
+olsres_2_1=olsmod_1.fit()
+
+print("R-Squared:",np.round(olsres_2_1.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_2_1.rsquared_adj,3))
+
+
+X_train5_1= X_train6.drop(['horsepower'],axis=1)
+olsmod_4_1 = sm.OLS(y_train,X_train5_1)
+olsres_4_1=olsmod_4_1.fit()
+
+print("R-Squared:",np.round(olsres_4_1.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_4_1.rsquared_adj,3))
+
+
+X_train7= X_train6.drop(['horsepower'],axis=1)
+olsmod_6 = sm.OLS(y_train,X_train7)
+olsres_6=olsmod_6.fit()
+print(olsres_6.summary())
+
+
+vif_series1 = pd.Series([variance_inflation_factor(X_train7.values,i)
+                        for i in range(X_train7.shape[1])],index=X_train7.columns,)
+print("VIF values: \n\n{}\n".format(vif_series1))
+
+
+X_train2_2= X_train7.drop(['displacement'],axis=1)
+olsmod_1_2 = sm.OLS(y_train,X_train2_2)
+olsres_1_2=olsmod_1_2.fit()
+
+print("R-Squared:",np.round(olsres_1_2.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_1_2.rsquared_adj,3))
+
+
+X_train3_2= X_train6.drop(['weight'],axis=1)
+olsmod_2_2 = sm.OLS(y_train,X_train3_2)
+olsres_2_2=olsmod_2.fit()
+
+print("R-Squared:",np.round(olsres_2_2.rsquared,3),
+     "\nAdjusted R-squred:",
+     np.round(olsres_2_2.rsquared_adj,3))
+
+
+X_train8= X_train7.drop(['displacement'],axis=1)
+olsmod_7 = sm.OLS(y_train,X_train8)
+olsres_7=olsmod_7.fit()
+print(olsres_7.summary())
+
+
+vif_series1 = pd.Series([variance_inflation_factor(X_train8.values,i)
+                        for i in range(X_train8.shape[1])],index=X_train8.columns,)
+print("VIF values: \n\n{}\n".format(vif_series1))
+
+
+print(olsres_7.summary())
+
+X_train9= X_train8.drop(['acceleration'],axis=1)
+olsmod_8 = sm.OLS(y_train,X_train9)
+olsres_8=olsmod_8.fit()
+print(olsres_8.summary())
+
+df_pred = pd.DataFrame()
+df_pred["Actual Values"] = y_train.values.flatten()
+df_pred["Fitted Values"] = olsres_7.fittedvalues.values
+df_pred["Residuals"]= olsres_7.resid.values
+
+df_pred.head()
+
+sns.set_style("whitegrid")
+sns.residplot(data=df_pred,x="Fitted Values",y="Residuals",color="blue",lowess=True)
+plt.xlabel("Fitted Values")
+plt.ylabel("Residuals")
+plt.title("Fitted vs Residual plot",fontsize=18,fontfamily="Cursive")
+plt.show()
+
+X_train9.columns
+
+sns.pairplot(df_lr[['mpg','weight', 'model year', 'origin_Asian', 'origin_European']])
+plt.show()
+
+
+X_train9["weight_sq"] = np.square(X_train9["weight"])
+olsmod_9 = sm.OLS(y_train,X_train9)
+olsres_9=olsmod_9.fit()
+print(olsres_9.summary())
+
+df_pred = pd.DataFrame()
+df_pred["Actual Values"] = y_train.values.flatten()
+df_pred["Fitted Values"] = olsres_9.fittedvalues.values
+df_pred["Residuals"]= olsres_9.resid.values
+
+df_pred.head()
+
+sns.set_style("whitegrid")
+sns.residplot(data=df_pred,x="Fitted Values",y="Residuals",color="blue",lowess=True)
+plt.xlabel("Fitted Values")
+plt.ylabel("Residuals")
+plt.title("Fitted vs Residual plot",fontsize=18,fontfamily="Cursive")
+plt.show()
+
+sns.histplot(df_pred['Residuals'],kde=True,bins=25)
+plt.title("Normality of residuals",fontfamily="Cursive",fontsize=18)
+plt.show()
+
+
+import pylab
+import scipy.stats as stats
+stats.probplot(df_pred["Residuals"],dist="norm",plot=pylab)
+plt.show()
+
+from scipy.stats import shapiro
+
+shapiro_test = shapiro(df_pred["Residuals"])
+print(shapiro_test )
+
+import statsmodels.stats.api  as sms
+sms.het_goldfeldquandt(df_pred["Residuals"],X_train9)[1]
+
+print(olsres_9.summary())
+
+olsres_9.params
+
+Equation = "mgp="
+print(Equation,end=" ")
+for i in range(len(X_train9.columns)):
+    if i ==0:
+        print(olsres_9.params[i],"+",end=" ")
+    elif i!=len(X_train9.columns)-1:
+        print(olsres_9.params[i],"* (",X_train9.columns[i],")"," + ",end=" ",)
+    else:
+        print(olsres_9.params[i],"*(",X_train9.columns[i],")")
+
+X_test.columns
+
+X_test2 = X_test.drop(['cylinders', 'displacement', 'horsepower','acceleration'],axis=1)
+
+X_test2["weight_sq"]=np.square(X_test2["weight"])
+
+
+y_pred_test = olsres_9.predict(X_test2)
+y_pred_train = olsres_9.predict(X_train9)
+
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+
+rmse1 = np.sqrt(mean_squared_error(y_train,y_pred_train))
+rmse1
+
+rmse2 = np.sqrt(mean_squared_error(y_test,y_pred_test))
+rmse2
+
+mae1 = mean_absolute_error(y_train,df_pred["Fitted Values"])
+mae1
+
+mae1 = mean_absolute_error(y_test,y_pred_test)
+mae1
+
+regression_model = LinearRegression()
+regression_model.fit(X_train9,y_train)
+
+for idx,col_name in enumerate(X_train9.columns):
+    print("The coefficient for {} is {} ".format(col_name,regression_model.coef_[idx]))
+
+intercept = regression_model.intercept_
+print("The intercept for our model is {}".format(intercept))
+
+regression_model.score(X_train9,y_train)
+
+regression_model.score(X_test2,y_test)
+
+predicted_train = regression_model.fit(X_train9,y_train).predict(X_train9)
+np.sqrt(metrics.mean_squared_error(y_train,predicted_train))
+
+predicted_train = regression_model.fit(X_train9,y_train).predict(X_test2)
+np.sqrt(metrics.mean_squared_error(y_test,predicted_train))
+
+
+

@@ -1,0 +1,95 @@
+df["AccountWeeks"].unique()
+
+df["AccountWeeks"].median()
+
+df["AccountWeeks"].fillna(df["AccountWeeks"].median(),inplace=True)
+df["ContractRenewal"].fillna(df["ContractRenewal"].median(),inplace=True)
+df["DataPlan"].fillna(df["DataPlan"].median(),inplace=True)
+df["DataUsage"].fillna(df["DataUsage"].median(),inplace=True)
+df["CustServCalls"].fillna(df["CustServCalls"].median(),inplace=True)
+df["DayMins"].fillna(df["DayMins"].median(),inplace=True)
+df["DayCalls"].fillna(df["DayCalls"].median(),inplace=True)
+df["MonthlyCharge"].fillna(df["MonthlyCharge"].median(),inplace=True)
+df["OverageFee"].fillna(df["OverageFee"].median(),inplace=True)
+df["RoamMins"].fillna(df["RoamMins"].median(),inplace=True)
+
+df.isnull().sum()
+
+from sklearn.preprocessing import LabelEncoder
+encoder=LabelEncoder
+df_encoder=df.copy()
+for col in df_encoder.columns:
+    if df_encoder[col].dtype == "object":
+        df_encoder[col]=encoder.fit_transform(df_encoded[col])
+
+plt.figure(figsize=(9,9))
+count = df.dtypes.index
+sns.violinplot(data=df.iloc[:11],orient = "h",palette = ["teal"])
+plt.title("With Outlier",fontsize=20,fontfamily="Cursive")
+plt.show()
+
+X=df.drop(["Churn"],axis=1)
+Y=df["Churn"]
+
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.3,random_state=42)
+
+LDA=LinearDiscriminantAnalysis()
+LDA.fit(X,Y)
+
+LDA.coef_
+
+LDA.intercept_
+
+
+ Classification by discriminant score
+
+
+
+DS = []
+coef = [-1.51727555e-03, -2.20670773e+00, -1.40513935e+00,
+        -5.51795853e-01,  4.63051730e-01, -3.16488423e-04,
+         3.22778242e-03,  8.26708958e-02, -4.99964457e-02,
+         4.66650361e-02]
+
+for p in range(len(X)):
+    s3 = 0  
+    for q in range(X.shape[1]):
+        s3 += X.iloc[p, q] * coef[q]  # Accessing DataFrame values using iloc
+    s3 += -4.6676 
+    DS.append(s3)
+
+
+
+
+
+
+
+
+
+s1 = 0
+s2 = 0
+for i in range(len(X)):
+    if DS[i] > 0:
+        print('FOR Row:', i)
+        print(X.iloc[i, :])  # Use iloc to access the row
+        print()
+        print("-->","{DS; ", DS[i], ">= 0, Classify as 1}")
+        print("-----------------------------------------------------------")
+        s1 += 1
+    elif DS[i] < 0:
+        print('FOR Row:', i)
+        print(X.iloc[i, :])  # Use iloc to access the row
+        print()
+        print("-->","{DS; ", DS[i], "<= 0, Classify as 0}")
+        print("-----------------------------------------------------------")
+        s2 += 1
+
+
+
+print(s3,'rows classified as 1 (Customers who churn)')
+print(s4,'rows classified as 0 ( Customers who did not churn)')
+
+
+
+
+

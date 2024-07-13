@@ -1,0 +1,92 @@
+PCA 
+
+Data.isnull().sum()
+
+Data_abc=Data.drop([0,1,2],axis=0)
+Data_abc.head()
+
+Data_pca=Data.drop(['City','Date','AQI','AQI_Bucket'],axis = 1)
+
+Data_pca.head()
+
+Data_pca.tail()
+
+len(Data_pca.columns)
+
+# outlier check #
+
+plt.figure(figsize=(9,9))
+count = df.dtypes.index
+sns.violinplot(data=df.iloc[:11],orient = "h",palette = ["teal"])
+plt.title("With Outlier",fontsize=20,fontfamily="Cursive")
+plt.show()
+
+def remove_outlier(col):
+    sorted(col)
+    Q1,Q3=np.percentile(col,[25,75])
+    IQR=Q3-Q1
+    lower_range = Q1 - (1.5*IQR)      
+    upper_range = Q3 + (1.5 *IQR)
+    return lower_range,upper_range
+
+for column in df[count].columns:
+    LL, UL = remove_outlier(df[column])
+    df[column]=np.where(df[column]>UL,UL,df[column])
+    df[column]=np.where(df[column]<LL,LL,df[column])
+
+
+Data_pca.describe().T
+
+from scipy.stats import zscore
+Data_pca_scaled=Data_pca.apply(zscore)
+
+Data_pca_scaled.head()
+
+plt.figure(figsize=(10,8))
+sns.heatmap(Data_pca_scaled.corr(),annot=True,fmt='.2f');
+
+pip install factor_analyzer 
+
+from factor_analyzer.factor_analyzer import calculate_bartlett_sphericity
+chi_square_value,p_value=calculate_bartlett_sphericity(Data_pca_scaled)
+p_value
+
+
+from factor_analyzer.factor_analyzer import calculate_kmo
+kmo_all,kmo_model=calculate_kmo(Data_pca_scaled)
+kmo_model
+
+from sklearn.decomposition import PCA
+pca=PCA(n_components=12,random_state=123)
+pca_transformed=pca.fit_transform(Data_pca_scaled)
+
+pca.components_
+
+pca.explained_variance_
+
+pca.explained_variance_ratio_
+
+# Interpretation pc1 alone capture 47.5% of the variability of the data.If we add first 4 or 5pca then it crosses 80% #
+
+5.71418983/12
+
+
+#create a dataframe containing the loading or coefficients of all pc's
+Data_extracted_loading=pd.DataFrame(pca.components_.T,
+                                    columns=["PC1","PC2","PC3","PC4","PC5","PC6","PC7","PC8","PC9","PC10","PC11","PC12"],
+                                    index=Data_pca_scaled.columns)
+
+
+Data_extracted_loading
+
+
+plt.figure(figsize=(8,5))
+sns.lineplot(y=pca.explained_variance_ratio_,x=range(1,13),marker='o')
+plt.xlabel("Number of Components",fontsize=10)
+plt.ylabel("Variance explained",fontsize=10)
+plt.title("Scree plot",fontsize=12)
+plt.grid()
+plt.show
+
+
+
